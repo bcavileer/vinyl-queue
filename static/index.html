@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>V.Q.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <style>
+        body, html {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            overflow-y: hidden;
+        }
+        body {
+            background-image: url('vinyl_pause.jpg');
+            background-size: cover;
+            text-align: center;
+            cursor: pointer;
+        }
+        .servo {
+            display: none;
+            background-color: black;
+            opacity: 0.5;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 22px;
+        }
+        .blink_me {
+            display: inline-block;
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+        .servo:focus {
+            outline:none !important;
+        }
+    </style>
+</head>
+
+<body>
+<button class="servo" id="servo-0" autofocus>Play</button>
+
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+<script>
+  // When one of our LED buttons is clicked, call toggleLED
+  $('body').click(toggleSERVO);
+
+  function toggleSERVO() {
+    // Get the servo number of the clicked button
+    var index = this.id.split('-')[1];
+
+    // Make an AJAX post to our tessel with the index
+    $.ajax({
+      type: 'GET',
+      url: '/servos/' + index,
+      success: function() { console.log('servo ' + index + ' toggled'); },
+    });
+  }
+</script>
+
+<script>
+  // Create a new websocket connection to Tessel
+  // Put your IP Address here
+  var exampleSocket       = new WebSocket('ws://10.0.0.211:8081');
+  exampleSocket.onopen    = function(event) {
+    exampleSocket.send('get state');
+  };
+  exampleSocket.onmessage = function(event) {
+    if (event.data === "state: 0"){
+      $('.servo').text("Playing");
+      $('.servo').removeClass("blink_me");
+      document.body.style.backgroundImage = "url('vinyl_play.gif')";
+    } else {
+      $('.servo').text("Paused");
+      $('.servo').addClass("blink_me");
+      document.body.style.backgroundImage = "url('vinyl_pause.jpg')";
+    }
+  };
+</script>
+</body>
+</html>
