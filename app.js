@@ -22,6 +22,9 @@ var wsServer = ws.createServer(function(conn) {
   conn.on('close', function(code, reason) {
     console.log('Connection closed');
   });
+  conn.on('error', function() {
+    console.log('Connection error ignored');
+  });
 }).listen(8081);
 
 // The router should use our static folder for client HTML/JS
